@@ -30,6 +30,7 @@
     "content-type": "^1.0.5",
     "cookie": "^0.7.2",
     "cookie-signature": "^1.2.2",
+    "cors": "^2.8.5",
     "cosmiconfig": "^9.0.0",
     "data-uri-to-buffer": "^6.0.2",
     "debug": "^4.4.1",
