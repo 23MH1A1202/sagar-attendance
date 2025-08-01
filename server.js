@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const puppeteer = require("puppeteer");
+const chromium = require("chrome-aws-lambda");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,10 +23,17 @@ app.post("/register", async (req, res) => {
     return res.send("❌ Missing credentials. Use ?username=YOURID&password=YOURPASS");
   }
 
+<<<<<<< HEAD
  const browser = await puppeteer.launch({
   headless: true,
   executablePath: puppeteer.executablePath(), // 👈 ensures Puppeteer finds Chrome on Render
   args: ["--no-sandbox", "--disable-setuid-sandbox"]
+=======
+ const browser = await chromium.puppeteer.launch({
+  args: chromium.args,
+  executablePath: await chromium.executablePath,
+  headless: chromium.headless,
+>>>>>>> 871cb7b (✅ Cleanup puppeteer install, switch to puppeteer-core + chrome-aws-lambda)
 });
 
   const page = await browser.newPage();
