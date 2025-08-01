@@ -1,18 +1,19 @@
 const express = require("express");
+const cors = require("cors");
 const puppeteer = require("puppeteer");
-const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Serve static files
-app.use(express.static(path.join(__dirname, "public")));
+app.use(cors({
+  origin: "https://23mh1a1202.github.io",
+  methods: ["GET", "POST", "OPTIONS"],
+}));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-app.use(express.json()); // <-- add this middleware at the top
+app.options("*", cors());
+// <--- enable CORS
+app.use(express.json());
 
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
@@ -77,7 +78,7 @@ app.post("/register", async (req, res) => {
               function clearAndGoBack() {
                 localStorage.removeItem("ecap_user");
                 localStorage.removeItem("ecap_pass");
-                window.location.href = "/";
+                window.location.href = "https://23mh1a1202.github.io/ecap-ui";
               }
             </script>
           </body>

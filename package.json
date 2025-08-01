@@ -112,7 +112,7 @@
     "proxy-agent": "^6.5.0",
     "proxy-from-env": "^1.1.0",
     "pump": "^3.0.3",
-    "puppeteer": "^24.15.0",
+    "puppeteer": "^22.8.2",
     "qs": "^6.14.0",
     "range-parser": "^1.2.1",
     "raw-body": "^3.0.0",
@@ -157,7 +157,7 @@
     "zod": "^3.25.76"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "puppeteer install",
     "start": "node server.js"
   },
   "keywords": [],
