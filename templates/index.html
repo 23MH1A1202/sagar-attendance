@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Sagar Attendance | Check ACET Attendance Instantly</title>
+    
+    <meta name="description" content="The fastest way to check attendance for Aditya College of Engineering & Technology. Features: Bunk Meter, Saved Profiles, and Safe Zone Calculator.">
+    
+    <meta name="keywords" content="Aditya Attendance, ACET Attendance, ECAP, Sagar Attendance, Bunk Meter, Sandyy Attendance, ACET student login,Ecap Attendance, ACOE attendance, AEC attendance, Aditya University attendance">
+    
+    <meta name="author" content="Sagar">
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" type="image/png" href="/icon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; color: #0f172a; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+        
+        .app-header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 1.5rem 1.5rem 5rem; border-radius: 0 0 2.5rem 2.5rem; color: white; box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.3); position: relative; z-index: 10; }
+        
+        .glass-card { background: white; border-radius: 1.25rem; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); padding: 1.5rem; transition: transform 0.2s; border: 1px solid white; }
+        .glass-card:active { transform: scale(0.99); }
+
+        .friend-chip { display: flex; align-items: center; justify-content: space-between; background: white; padding: 1rem; border-radius: 1rem; margin-bottom: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        .friend-chip:active { background: #f8fafc; transform: scale(0.98); }
+
+        .clean-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; margin-top: 0.5rem; }
+        .clean-table th { text-align: center; padding: 0.75rem; color: #94a3b8; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #f1f5f9; }
+        .clean-table th:first-child { text-align: left; }
+        .clean-table td { padding: 1rem 0.75rem; border-bottom: 1px dashed #e2e8f0; font-weight: 600; color: #334155; text-align: center; }
+        .clean-table td:first-child { text-align: left; color: #0f172a; font-weight: 700; }
+        .clean-table tr:last-child td { border-top: 2px solid #e2e8f0; border-bottom: none; font-weight: 800; color: #4f46e5; background: #f8fafc; }
+        .clean-table tr:last-child td:first-child { border-radius: 0 0 0 1rem; }
+        .clean-table tr:last-child td:last-child { border-radius: 0 0 1rem 0; }
+
+        .status-pill { padding: 6px 14px; border-radius: 99px; font-weight: 700; font-size: 0.7rem; display: inline-block; letter-spacing: 0.02em; }
+        .safe { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #4f46e5; cursor: pointer; margin-top: -10px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4); border: 2px solid white; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
+        input[type=range]:focus { outline: none; }
+        
+        .hidden { display: none !important; }
+        .empty-state { text-align: center; color: #94a3b8; font-style: italic; font-size: 0.9rem; padding: 2rem 1rem; background: #f8fafc; border-radius: 1rem; border: 1px dashed #e2e8f0; }
+        
+        .loader { width: 48px; height: 48px; border: 5px solid #e0e7ff; border-bottom-color: #4f46e5; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #custom-modal { transition: opacity 0.2s ease-in-out; }
+        #custom-modal.opacity-0 { pointer-events: none; }
+        #modal-content { transition: transform 0.2s ease-in-out; }
+        #custom-modal.opacity-0 #modal-content { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+    <div id="custom-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm opacity-0 hidden">
+        <div id="modal-content" class="bg-white w-[85%] max-w-sm rounded-2xl p-6 shadow-2xl transform scale-100 text-center">
+            <h3 id="modal-title" class="text-xl font-bold text-gray-900 mb-2">Title</h3>
+            <p id="modal-msg" class="text-gray-500 text-sm mb-6 leading-relaxed">Message goes here...</p>
+            <div class="flex gap-3 justify-center">
+                <button id="modal-cancel" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors hidden">Cancel</button>
+                <button id="modal-ok" class="px-8 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-transform active:scale-95">Okay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="home-screen" class="pb-10">
+        <div class="app-header text-center" style="padding-top: 3rem;">
+            <h1 class="text-3xl font-extrabold tracking-tight mb-1">Attendance Pro</h1>
+            <p class="text-indigo-200 text-sm font-medium opacity-90">By Sagar</p>
+        </div>
+
+        <div class="px-5 -mt-10 relative z-20">
+            <div class="glass-card mb-8">
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Roll Number</label>
+                <div class="flex gap-2">
+                    <input type="text" id="rollNoInput" placeholder="23MH1A12xx" 
+                           class="flex-1 bg-gray-50 border-0 text-gray-900 text-lg rounded-xl focus:ring-2 focus:ring-indigo-500 block w-full p-3 font-mono uppercase outline-none shadow-inner">
+                    <button onclick="fetchData()" class="bg-gray-900 text-white rounded-xl px-6 font-bold hover:bg-gray-800 shadow-xl transition-all active:scale-95">
+                        GO
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-4 flex justify-between items-end px-1">
+                <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Saved Profiles</h2>
+                <span class="text-xs text-indigo-500 font-bold bg-indigo-50 px-2 py-1 rounded-md" id="friend-count">0</span>
+            </div>
+            
+            <div id="friends-list" class="space-y-3">
+                <div class="text-center py-12">
+                    <p class="text-gray-400 text-sm">No saved profiles yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-screen" class="fixed inset-0 bg-white z-50 hidden flex flex-col items-center justify-center p-6 text-center">
+        <span class="loader mb-6"></span>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Syncing Data...</h2>
+        <p class="text-gray-500 text-sm">Connecting to ACET Database securely.</p>
+    </div>
+
+    <div id="dashboard-screen" class="hidden pb-10">
+        <div class="app-header relative">
+            <div class="flex justify-between items-start pt-2">
+                <button onclick="showHome()" class="p-2 bg-white/10 rounded-full backdrop-blur-md active:bg-white/20 transition text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                </button>
+                <button onclick="saveCurrentProfile()" class="p-2 bg-white/10 rounded-full backdrop-blur-md active:bg-white/20 transition text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                </button>
+            </div>
+            <div class="mt-4 text-center">
+                <h1 id="display-name" class="text-2xl font-bold leading-tight mb-2">Student Name</h1>
+                <span id="display-branch" class="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase border border-white/10">Branch</span>
+            </div>
+        </div>
+
+        <div class="px-5 -mt-12 relative z-20 space-y-6">
+            <div class="glass-card text-center pb-6 pt-6">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Overall Percentage</h3>
+                <div class="flex items-center justify-center gap-2">
+                    <span id="aggregate-pct" class="text-6xl font-black text-gray-900 tracking-tighter">--%</span>
+                </div>
+                <span id="pct-badge" class="status-pill mb-4 mt-2">Loading...</span>
+
+                <div class="mt-2 mb-4 px-2">
+                    <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                        <span>Target Goal</span>
+                        <span id="target-display" class="text-indigo-600">75%</span>
+                    </div>
+                    <input type="range" id="target-slider" min="50" max="95" value="75" oninput="recalculateStatus()">
+                </div>
+
+                <p id="aggregate-msg" class="text-sm font-medium text-gray-500 px-2 leading-relaxed">Analyzing...</p>
+            </div>
+
+            <div class="glass-card">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Bunk Meter</h3>
+                    <span class="text-[10px] font-bold bg-purple-50 text-purple-600 px-2 py-1 rounded-md">PREDICTOR</span>
+                </div>
+                
+                <div class="flex gap-3 items-center">
+                    <div class="flex-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Classes to Skip</label>
+                        <input type="number" id="bunk-input" placeholder="0" class="w-full bg-gray-50 border-0 rounded-lg p-3 text-lg font-bold text-gray-800 text-center outline-none focus:ring-2 focus:ring-purple-500" oninput="calculateBunk()">
+                    </div>
+                    <div class="flex-1 text-center">
+                        <div class="text-[10px] font-bold text-gray-400 uppercase mb-1">Future %</div>
+                        <div id="bunk-result" class="text-3xl font-black text-gray-300">--%</div>
+                    </div>
+                </div>
+                <p id="bunk-msg" class="text-xs text-center text-gray-400 mt-3 font-medium">Enter a number to predict future %</p>
+            </div>
+
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">Today's Report</h3>
+                <div class="glass-card !p-0 overflow-hidden"><div id="daily-container" class="overflow-x-auto"></div></div>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">Yesterday's Report</h3>
+                <div class="glass-card !p-0 overflow-hidden"><div id="yesterday-container" class="overflow-x-auto"></div></div>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 ml-2">Semester Overall Report</h3>
+                <div class="glass-card !p-0 overflow-hidden"><div id="overall-container" class="overflow-x-auto"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let globalOverallData = []; 
+
+        function calculateBunk() {
+            if (globalOverallData.length === 0) return;
+            const skips = parseInt(document.getElementById('bunk-input').value) || 0;
+            const held = globalOverallData.reduce((sum, i) => sum + i.held, 0);
+            const att = globalOverallData.reduce((sum, i) => sum + i.attended, 0);
+            if (held === 0) return;
+
+            const futureHeld = held + skips;
+            const futurePct = ((att / futureHeld) * 100).toFixed(2);
+            
+            const resultEl = document.getElementById('bunk-result');
+            const msgEl = document.getElementById('bunk-msg');
+
+            resultEl.innerText = futurePct + "%";
+            
+            if (futurePct >= 75) {
+                resultEl.className = "text-3xl font-black text-green-600";
+                msgEl.innerHTML = `Safe! You will still be above <b>75%</b>.`;
+            } else {
+                resultEl.className = "text-3xl font-black text-red-500";
+                msgEl.innerHTML = `Warning! This will drop you below <b>75%</b>.`;
+            }
+        }
+
+        function recalculateStatus() {
+            if (globalOverallData.length === 0) return;
+            const targetVal = document.getElementById('target-slider').value;
+            document.getElementById('target-display').innerText = targetVal + "%";
+            
+            const targetPct = parseInt(targetVal) / 100;
+            const held = globalOverallData.reduce((sum, i) => sum + i.held, 0);
+            const att = globalOverallData.reduce((sum, i) => sum + i.attended, 0);
+            if (held === 0) return;
+
+            const currentPct = att / held;
+            const badge = document.getElementById('pct-badge');
+            const msg = document.getElementById('aggregate-msg');
+
+            if (currentPct >= targetPct) {
+                const maxHeld = att / targetPct;
+                const skips = Math.floor(maxHeld - held);
+                const days = (skips / 7).toFixed(1);
+                badge.className = "status-pill safe";
+                badge.innerText = "SAFE ZONE";
+                msg.innerHTML = `You can skip approx <b class="text-green-600">${skips} classes</b> (~${days} days) to keep ${targetVal}%.`;
+            } else {
+                const numerator = (targetPct * held) - att;
+                const denominator = 1 - targetPct;
+                const need = Math.ceil(numerator / denominator);
+                const days = (need / 7).toFixed(1);
+                badge.className = "status-pill danger";
+                badge.innerText = "SHORTAGE";
+                msg.innerHTML = `Attend next <b class="text-red-600">${need} classes</b> (~${days} days) to reach ${targetVal}%.`;
+            }
+        }
+
+        function showModal(title, msg, onConfirm = null) {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerHTML = msg;
+            const btnCancel = document.getElementById('modal-cancel');
+            const btnOk = document.getElementById('modal-ok');
+            const newBtnOk = btnOk.cloneNode(true);
+            btnOk.parentNode.replaceChild(newBtnOk, btnOk);
+
+            if (onConfirm) {
+                btnCancel.classList.remove('hidden');
+                newBtnOk.innerText = "Confirm";
+                newBtnOk.className = "px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-lg shadow-red-200 transition-transform active:scale-95";
+                newBtnOk.onclick = () => { onConfirm(); closeModal(); };
+            } else {
+                btnCancel.classList.add('hidden');
+                newBtnOk.innerText = "Okay";
+                newBtnOk.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-transform active:scale-95";
+                newBtnOk.onclick = closeModal;
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        function extractTableData(html) {
+            if (!html) return [];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const allRows = Array.from(doc.querySelectorAll('tr'));
+            const data = [];
+            allRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 4) return;
+                if (/^\d+$/.test(cells[0].innerText.trim())) {
+                    data.push({
+                        subject: cells[1].innerText.trim(),
+                        held: parseInt(cells[2].innerText) || 0,
+                        attended: parseInt(cells[3].innerText) || 0
+                    });
+                }
+            });
+            return data;
+        }
+
+        function extractProfile(html) {
+            if (!html) return;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const profileRow = doc.querySelector(".reportData1 tr:nth-child(2)");
+            const branchRow = doc.querySelector(".reportData1 tr:nth-child(4)");
+            if (profileRow && profileRow.cells.length > 2) document.getElementById('display-name').innerText = profileRow.cells[2].innerText.trim();
+            if (branchRow && branchRow.cells.length > 2) document.getElementById('display-branch').innerText = branchRow.cells[2].innerText.trim();
+        }
+
+        function buildTableHTML(data) {
+            const totalHeld = data.reduce((sum, i) => sum + i.held, 0);
+            if (totalHeld === 0) return "<div class='empty-state'>No classes held.</div>";
+            const activeRows = data.filter(i => i.held > 0);
+            if (activeRows.length === 0) return "<div class='empty-state'>No Data Found</div>";
+            let rows = activeRows.map(item => {
+                const pct = ((item.attended / item.held) * 100).toFixed(0);
+                const pctColor = pct < 75 ? 'text-red-500' : 'text-green-600';
+                return `<tr><td>${item.subject}</td><td>${item.held}</td><td>${item.attended}</td><td class="${pctColor}">${pct}%</td></tr>`;
+            }).join('');
+            const totalAtt = data.reduce((sum, i) => sum + i.attended, 0);
+            const totalPct = ((totalAtt / totalHeld) * 100).toFixed(2);
+            return `<table class="clean-table"><thead><tr><th>Subject</th><th>Held</th><th>Att</th><th>%</th></tr></thead><tbody>${rows}<tr><td>TOTAL</td><td>${totalHeld}</td><td>${totalAtt}</td><td>${totalPct}%</td></tr></tbody></table>`;
+        }
+
+        function updateAggregate(data) {
+            globalOverallData = data;
+            const held = data.reduce((sum, i) => sum + i.held, 0);
+            const att = data.reduce((sum, i) => sum + i.attended, 0);
+            if (held === 0) return;
+
+            const pct = ((att / held) * 100).toFixed(2);
+            document.getElementById('aggregate-pct').innerText = pct + "%";
+            
+            // --- FIX: RESET BUNK METER ON NEW DATA ---
+            document.getElementById('bunk-input').value = "";
+            document.getElementById('bunk-result').innerText = "--%";
+            document.getElementById('bunk-result').className = "text-3xl font-black text-gray-300";
+            document.getElementById('bunk-msg').innerText = "Enter a number to predict future %";
+
+            recalculateStatus();
+        }
+
+        async function fetchData() {
+            const rollNo = document.getElementById('rollNoInput').value.trim();
+            if (!rollNo) return showModal("Input Error", "Please enter a Roll Number first.");
+
+            document.getElementById('loading-screen').classList.remove('hidden');
+
+            try {
+                const res = await fetch('/fetch-attendance', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ rollNo })
+                });
+                const data = await res.json();
+
+                extractProfile(data.overallHtml);
+                document.getElementById('daily-container').innerHTML = buildTableHTML(extractTableData(data.dailyHtml));
+                document.getElementById('yesterday-container').innerHTML = buildTableHTML(extractTableData(data.yesterdayHtml));
+                
+                const overallData = extractTableData(data.overallHtml);
+                document.getElementById('overall-container').innerHTML = buildTableHTML(overallData);
+                if(overallData.length) updateAggregate(overallData);
+
+                document.getElementById('home-screen').classList.add('hidden');
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+                window.scrollTo(0, 0);
+
+            } catch (err) {
+                document.getElementById('loading-screen').classList.add('hidden');
+                showModal("Connection Failed", "Could not fetch data. Check your Roll Number or try again.");
+            }
+        }
+
+        function showHome() {
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('home-screen').classList.remove('hidden');
+            renderFriends();
+        }
+
+        function saveCurrentProfile() {
+            const name = document.getElementById('display-name').innerText;
+            const rollNo = document.getElementById('rollNoInput').value.trim().toUpperCase();
+            if (name === "Student Name") return showModal("Action Required", "Please fetch data before saving.");
+            const friends = JSON.parse(localStorage.getItem('ecap_friends') || '[]');
+            if (friends.some(f => f.rollNo === rollNo)) return showModal("Already Saved", `${name} is already in your list.`);
+            friends.push({ name, rollNo });
+            localStorage.setItem('ecap_friends', JSON.stringify(friends));
+            showModal("Success", `<b>${name}</b> has been saved.`);
+        }
+
+        function confirmDelete(rollNo, name) {
+            showModal("Delete Profile?", `Remove <b>${name}</b> from your list?`, () => deleteFriend(rollNo));
+        }
+
+        function deleteFriend(rollNo) {
+            const friends = JSON.parse(localStorage.getItem('ecap_friends') || '[]');
+            const newFriends = friends.filter(f => f.rollNo !== rollNo);
+            localStorage.setItem('ecap_friends', JSON.stringify(newFriends));
+            renderFriends();
+        }
+
+        function loadFriend(rollNo) {
+            document.getElementById('rollNoInput').value = rollNo;
+            fetchData();
+        }
+
+        function renderFriends() {
+            const friends = JSON.parse(localStorage.getItem('ecap_friends') || '[]');
+            const container = document.getElementById('friends-list');
+            document.getElementById('friend-count').innerText = `${friends.length}`;
+            if (friends.length === 0) {
+                container.innerHTML = '<div class="text-center py-12"><p class="text-gray-400 text-sm">No saved profiles yet.</p></div>';
+                return;
+            }
+            container.innerHTML = friends.map(f => `
+                <div class="friend-chip" onclick="loadFriend('${f.rollNo}')">
+                    <div><div class="font-bold text-gray-700 text-sm">${f.name}</div><div class="text-xs text-indigo-500 font-mono font-semibold">${f.rollNo}</div></div>
+                    <button onclick="event.stopPropagation(); confirmDelete('${f.rollNo}', '${f.name}')" class="p-2 text-gray-300 hover:text-red-500 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>
+                </div>
+            `).join('');
+        }
+        renderFriends();
+    </script>
+
+<script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker Registered!', reg.scope))
+                .catch(err => console.log('Service Worker Failed:', err));
+        });
+    }
+</script>
+</body>
+</html>
