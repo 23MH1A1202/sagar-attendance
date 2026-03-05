@@ -338,6 +338,8 @@ app.post("/fetch-attendance", (req, res) => {
     }).then(d => res.json(d)).catch(e => res.status(500).json({error: "Fail"}));
 });
 
+// --- 🔔 PUSH NOTIFICATION & DB ROUTES ---
+
 app.get('/api/vapidPublicKey', (req, res) => {
     res.send(process.env.VAPID_PUBLIC_KEY);
 });
@@ -368,25 +370,54 @@ app.post('/api/subscribe', async (req, res) => {
     }
 });
 
+// ─── NEW: FETCH NOTIFICATIONS API ───
+app.get('/api/notifications/:rollNo', async (req, res) => {
+    try {
+        const { rollNo } = req.params;
+        const snapshot = await db.collection('users').doc(rollNo).collection('notifications')
+                                 .orderBy('timestamp', 'desc').limit(50).get();
+        let notifs = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            notifs.push({
+                id: doc.id,
+                title: data.title,
+                body: data.body,
+                timestamp: data.timestamp ? data.timestamp.toDate().toISOString() : new Date().toISOString()
+            });
+        });
+        res.status(200).json({ success: true, notifications: notifs });
+    } catch (error) {
+        console.error("Fetch Notifications Error:", error);
+        res.status(500).json({ error: "Failed to fetch notifications." });
+    }
+});
 
+// ─── NEW: DELETE NOTIFICATION API ───
+app.delete('/api/notifications/:rollNo/:id', async (req, res) => {
+    try {
+        const { rollNo, id } = req.params;
+        await db.collection('users').doc(rollNo).collection('notifications').doc(id).delete();
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error("Delete Notification Error:", error);
+        res.status(500).json({ error: "Failed to delete notification." });
+    }
+});
 
 app.get('/sw.js', (req, res) => res.sendFile(path.join(__dirname, 'templates', 'sw.js')));
 app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'templates', 'manifest.json')));
 app.get('/icon.png', (req, res) => res.sendFile(path.join(__dirname, 'templates', 'logo.jpg')));
+
 // --- 🛠️ ADMIN ROUTES ---
 
-// 1. Serve the Admin Panel HTML
 app.get('/notifiadmin', (req, res) => {
     res.sendFile(path.join(__dirname, 'templates', 'notifiadmin.html')); 
 });
 
-// 2. Fetch Active Users for the Dropdown
 app.post('/api/admin/users', async (req, res) => {
     const { secret } = req.body;
-
-    if (secret !== 'SagarAdmin2006^') {
-        return res.status(403).json({ error: "Unauthorized. Wrong admin password." });
-    }
+    if (secret !== 'SagarAdmin2006^') return res.status(403).json({ error: "Unauthorized." });
 
     try {
         const usersRef = db.collection('users');
@@ -397,38 +428,28 @@ app.post('/api/admin/users', async (req, res) => {
             const data = doc.data();
             activeUsers.push({ rollNo: data.rollNo, name: data.name || '' });
         });
-
         res.status(200).json({ success: true, users: activeUsers });
     } catch (error) {
-        console.error("Fetch Users Error:", error);
         res.status(500).json({ error: "Failed to fetch active users." });
     }
 });
 
-// 3. Broadcast & Direct Message Logic
 app.post('/api/admin/broadcast', async (req, res) => {
     const { message, secret, targetRollNo } = req.body;
-
-    if (secret !== 'SagarAdmin2006^') {
-        return res.status(403).json({ error: "Unauthorized. Wrong admin password." });
-    }
-
+    if (secret !== 'SagarAdmin2006^') return res.status(403).json({ error: "Unauthorized." });
     if (!message) return res.status(400).json({ error: "Message is required." });
 
     try {
         const usersRef = db.collection('users');
         let snapshot;
 
-        // If specific user selected, get only them. Else, get everyone.
         if (targetRollNo && targetRollNo !== 'ALL') {
             snapshot = await usersRef.where('rollNo', '==', targetRollNo).where('notificationsEnabled', '==', true).get();
         } else {
             snapshot = await usersRef.where('notificationsEnabled', '==', true).get();
         }
 
-        if (snapshot.empty) {
-            return res.status(200).json({ success: true, sentCount: 0, msg: "No active users found." });
-        }
+        if (snapshot.empty) return res.status(200).json({ success: true, sentCount: 0, msg: "No active users found." });
 
         let sentCount = 0;
         
@@ -436,16 +457,24 @@ app.post('/api/admin/broadcast', async (req, res) => {
             const user = doc.data();
             const studentName = toTitleCase(user.name || user.rollNo);
             
-            const payload = JSON.stringify({
+            // ─── ADDED URL REDIRECT & SAVING TO DB ───
+            const pushData = {
                 title: targetRollNo === 'ALL' ? "Update From Sagar Attendance📢" : "Hey! 💬",
-                body: `Hi ${studentName},\n${message}`
-            });
+                body: `Hi ${studentName},\n${message}`,
+                url: "/#notifications"
+            };
 
             try {
-                await webpush.sendNotification(user.subscription, payload);
+                await webpush.sendNotification(user.subscription, JSON.stringify(pushData));
                 sentCount++;
+                
+                // Save it to history!
+                await usersRef.doc(user.rollNo).collection('notifications').add({
+                    title: pushData.title,
+                    body: pushData.body,
+                    timestamp: admin.firestore.FieldValue.serverTimestamp()
+                });
             } catch (pushErr) {
-                // If they uninstalled, clean up their DB record
                 if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
                     await usersRef.doc(user.rollNo).update({ notificationsEnabled: false });
                 }
@@ -453,14 +482,14 @@ app.post('/api/admin/broadcast', async (req, res) => {
         });
 
         await Promise.all(promises);
-        console.log(`[${getTimestamp()}] 📢 ADMIN: Sent testing message to ${sentCount} users (Target: ${targetRollNo || 'ALL'}).`);
+        console.log(`[${getTimestamp()}] 📢 ADMIN: Sent testing message to ${sentCount} users.`);
         res.status(200).json({ success: true, sentCount });
 
     } catch (error) {
-        console.error("Broadcast Error:", error);
         res.status(500).json({ error: "Failed to broadcast message." });
     }
 });
+
 const cron = require('node-cron');
 
 cron.schedule('*/10 10-18 * * 1-6', async () => {
@@ -500,14 +529,23 @@ cron.schedule('*/10 10-18 * * 1-6', async () => {
                 if (pushBody !== null) {
                     console.log(`[${getTimestamp()}] 🚨 CRON: Valid Attendance Change for ${rollNo}! Sending Push...`);
 
-                    const payload = JSON.stringify({
+                    // ─── ADDED URL REDIRECT & SAVING TO DB ───
+                    const pushData = {
                         title: "Attendance Updated! 📊",
                         body: pushBody,
-                    });
+                        url: "/#notifications"
+                    };
 
                     try {
-                        await webpush.sendNotification(user.subscription, payload);
+                        await webpush.sendNotification(user.subscription, JSON.stringify(pushData));
                         console.log(`[${getTimestamp()}] 📲 CRON: Push notification delivered to ${rollNo}.`);
+                        
+                        // Save it to history!
+                        await usersRef.doc(rollNo).collection('notifications').add({
+                            title: pushData.title,
+                            body: pushData.body,
+                            timestamp: admin.firestore.FieldValue.serverTimestamp()
+                        });
                     } catch (pushErr) {
                         if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
                             await usersRef.doc(rollNo).update({ notificationsEnabled: false });
@@ -524,7 +562,9 @@ cron.schedule('*/10 10-18 * * 1-6', async () => {
                 console.log(`[${getTimestamp()}] CRON skip: ECAP fetch timeout for ${rollNo}`);
             }
         }
-    } catch (error) {}
+    } catch (error) {
+        console.error(`[${getTimestamp()}] 🚨 CRON: Error occurred while checking attendance.`);
+    }
 }, { scheduled: true, timezone: "Asia/Kolkata" });
 
 app.listen(PORT, '0.0.0.0', async () => {

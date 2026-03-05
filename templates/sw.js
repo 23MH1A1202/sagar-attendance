@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-pro-v3'; // Bumped to v3 to force phones to update
+const CACHE_NAME = 'attendance-pro-v4'; // Bumped to v4 to force phones to update
 const urlsToCache = [
   '/',
   '/index.html',
@@ -11,7 +11,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache v3');
+        console.log('Opened cache v4');
         return cache.addAll(urlsToCache);
       })
   );
@@ -57,37 +57,43 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// --- 4. NEW: PUSH NOTIFICATION LISTENER ---
+// --- 4. PUSH NOTIFICATION LISTENER ---
 self.addEventListener('push', function(event) {
     const data = event.data ? event.data.json() : {};
     
     const title = data.title || "Attendance Update";
     const options = {
         body: data.body || "There has been a change in your attendance.",
-        icon: '/icon.png', // Uses your app's icon
+        icon: '/icon.png', 
         badge: '/icon.png',
-        vibrate: [200, 100, 200, 100, 200], // Cool vibration pattern
-        data: { url: '/' }
+        vibrate: [200, 100, 200, 100, 200], 
+        // Read the target URL from the server (defaults to /#notifications)
+        data: { url: data.url || '/#notifications' } 
     };
 
     event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// --- 5. NEW: NOTIFICATION TAP HANDLER ---
+// --- 5. NOTIFICATION TAP HANDLER (Smart Redirect) ---
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
+    
+    // Get the destination URL from the push payload
+    const targetUrl = event.notification.data.url;
+
     event.waitUntil(
-        clients.matchAll({ type: 'window' }).then(windowClients => {
-            // If the app is already open in a tab, just focus it
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+            // If the app is already open in a tab, hijack it and send it to the notification page
             for (let i = 0; i < windowClients.length; i++) {
                 let client = windowClients[i];
-                if (client.url.indexOf('/') !== -1 && 'focus' in client) {
+                if (client.url.includes(self.registration.scope) && 'focus' in client) {
+                    client.navigate(targetUrl); // Force the app to the specific page
                     return client.focus();
                 }
             }
-            // Otherwise, open a new window
+            // Otherwise, open a brand new window straight to the notifications page
             if (clients.openWindow) {
-                return clients.openWindow('/');
+                return clients.openWindow(targetUrl);
             }
         })
     );
