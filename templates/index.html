@@ -23,11 +23,9 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ─── SCALING FIX (The "90% Zoom" trick) ──────── */
         html { font-size: 14.5px; scroll-behavior: smooth; }
         @media (min-width: 640px) { html { font-size: 16px; } }
 
-        /* ─── LIGHT THEME (Default) ───────────────────── */
         :root {
             --bg:        #f1f5f9;
             --surface:   #ffffff;
@@ -55,7 +53,6 @@
             --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
 
-        /* ─── DARK THEME ──────────────────────────────── */
         [data-theme="dark"] {
             --bg:        #020617;
             --surface:   #0f172a;
@@ -82,14 +79,13 @@
             --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.2);
         }
 
-        /* ─── NEW APP ARCHITECTURE (Fixes Modal Position) ── */
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
-            height: 100dvh; /* Locks body to exact screen height */
-            overflow: hidden; /* Prevents whole-page scrolling */
+            height: 100dvh;
+            overflow: hidden;
             display: flex; justify-content: center; align-items: center;
             -webkit-tap-highlight-color: transparent;
             transition: background 0.3s ease;
@@ -102,10 +98,10 @@
             background: var(--bg);
             position: relative;
             display: flex; flex-direction: column;
-            overflow: hidden; /* Contains the internal scroll */
+            overflow: hidden;
+            transition: max-width 0.3s ease, border-radius 0.3s ease;
         }
 
-        /* The actual scrollable part */
         .scroll-area {
             flex: 1;
             overflow-y: auto;
@@ -113,40 +109,52 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        @media (min-width: 640px) {
+        /* ─── DESKTOP RESPONSIVE LAYOUT ─── */
+        @media (min-width: 850px) {
             body { 
                 background-color: var(--surface2);
                 background-image: radial-gradient(var(--border) 1px, transparent 1px);
                 background-size: 24px 24px;
             }
             .app-container {
-                height: 90vh; max-height: 850px;
-                border-radius: 40px;
+                height: 90vh; max-height: 900px;
+                max-width: 1000px;
+                border-radius: 30px;
                 box-shadow: var(--shadow);
                 border: 8px solid var(--surface);
             }
-            .scroll-area::-webkit-scrollbar { width: 6px; }
+            .home-content-wrap {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: 360px 1fr;
+                gap: 1.5rem;
+                align-items: start;
+            }
+            .scroll-area::-webkit-scrollbar { width: 8px; }
             .scroll-area::-webkit-scrollbar-track { background: transparent; }
             .scroll-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
         }
 
-        /* ─── MODALS & LOADERS (Now absolute to the frame) ── */
-        #custom-modal {
-            position: absolute; inset: 0; z-index: 200;
+        /* ─── MODALS ─── */
+        #custom-modal, #dev-modal {
+            position: absolute; inset: 0; z-index: 300;
             display: flex; align-items: center; justify-content: center;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
             opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
         }
-        #custom-modal.visible { opacity: 1; pointer-events: all; }
+        #custom-modal.visible, #dev-modal.visible { opacity: 1; pointer-events: all; }
 
-        #modal-content {
+        #modal-content, #dev-modal-content {
             background: var(--surface); border: 1px solid var(--border);
             width: 85%; max-width: 340px; border-radius: 24px;
             padding: 1.5rem; text-align: center;
             box-shadow: var(--shadow);
             transform: scale(0.95); transition: transform 0.2s ease;
         }
-        #custom-modal.visible #modal-content { transform: scale(1); }
+        #custom-modal.visible #modal-content, #dev-modal.visible #dev-modal-content { transform: scale(1); }
 
         #modal-title { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 0.5rem; }
         #modal-msg { color: var(--muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem; }
@@ -162,14 +170,6 @@
         .btn-danger { background: var(--red); color: white; }
         .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 
-        #loading-screen {
-            position: absolute; inset: 0; background: var(--surface); z-index: 150;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .loader-ring { width: 48px; height: 48px; border-radius: 50%; border: 4px solid var(--surface2); border-top-color: var(--accent); animation: spin 1s linear infinite; margin-bottom: 1.5rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ─── HEADERS ────────────────────────────────── */
         .app-header {
             background: linear-gradient(160deg, #1e1b4b 0%, #0f172a 100%);
             padding: 2.5rem 1.5rem 4rem; text-align: center; position: relative;
@@ -197,7 +197,6 @@
 
         .content-lift { margin-top: -2rem; padding: 0 1.25rem; position: relative; z-index: 10; }
 
-        /* ─── CARDS ──────────────────────────────────── */
         .card {
             background: var(--surface); border: 1px solid var(--border);
             border-radius: var(--card-r); padding: 1.25rem;
@@ -206,7 +205,6 @@
         }
         .section-title { font-size: 0.7rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.75rem; }
 
-        /* ─── INPUTS ─────────────────────────────────── */
         .input-row { display: flex; gap: 0.5rem; }
         .roll-input {
             flex: 1; background: var(--bg); border: 1px solid var(--border2); color: var(--text);
@@ -221,7 +219,6 @@
         }
         .go-btn:active { transform: scale(0.95); }
 
-        /* ─── PROFILES ───────────────────────────────── */
         .header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.75rem; padding: 0 0.25rem; }
         .count-badge { background: var(--surface); color: var(--accent); font-size: 0.7rem; font-weight: 800; padding: 0.1rem 0.6rem; border-radius: 99px; border: 1px solid var(--border); }
         
@@ -229,6 +226,7 @@
             background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
             padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
+            user-select: none; -webkit-user-select: none;
         }
         .friend-chip:active { transform: scale(0.98); background: var(--surface2); }
         .friend-avatar {
@@ -237,36 +235,88 @@
         }
         .friend-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 0.1rem; }
         .friend-roll { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--accent); }
-        .delete-btn { background: var(--surface2); color: var(--muted); border: none; border-radius: 10px; padding: 0.5rem; cursor: pointer; }
+        .delete-btn { background: var(--surface2); color: var(--muted); border: none; border-radius: 10px; padding: 0.5rem; cursor: pointer; position: relative; z-index: 2; }
 
-        /* ─── DASHBOARD ──────────────────────────────── */
         .dash-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .icon-btn { width: 42px; height: 42px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        #aggregate-pct { font-size: 4.5rem; font-weight: 800; color: var(--text); display: block; margin: 0.5rem 0; letter-spacing: -0.04em; }
-        .status-pill {
-            display: inline-block; padding: 0.35rem 1rem; border-radius: 99px;
-            font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+        .hero-card {
+            border-top: 4px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-glow {
+            position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+            width: 150px; height: 150px; background: var(--accent);
+            filter: blur(80px); opacity: 0.15; z-index: 0; pointer-events: none;
+        }
+        .gradient-text {
+            background: var(--accent-g);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 5rem !important; 
+            font-weight: 800; 
+            display: block; 
+            margin: 0.5rem 0; 
+            letter-spacing: -0.04em;
+            position: relative; z-index: 2;
+        }
+        .control-panel {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            position: relative; z-index: 2;
+            text-align: left;
+            margin-top: 1rem;
         }
 
-        /* ─── SLIDER & BUNK METER ────────────────────── */
+        .status-pill {
+            display: inline-block; padding: 0.4rem 1.2rem; border-radius: 99px;
+            font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+        }
+
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 0.5rem 0; }
-        input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 99px; background: var(--bg); border: 1px solid var(--border); }
+        input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 99px; background: var(--border); }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
-            background: var(--accent); margin-top: -10px; cursor: pointer;
+            background: var(--accent); margin-top: -9px; cursor: pointer;
             border: 3px solid var(--surface); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        .bunk-input-row { display: flex; gap: 1rem; align-items: center; }
-        .number-input {
-            width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
-            font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; text-align: center;
-            padding: 0.75rem; border-radius: 14px; outline: none;
+        .bunk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; }
+        
+        .bunk-stat-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            display: flex; flex-direction: column; justify-content: center;
         }
-        #bunk-result { font-size: 2.2rem; font-weight: 800; color: var(--muted); line-height: 1; margin-top: 0.2rem; }
+        .bunk-stat-box label {
+            font-size: 0.65rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;
+        }
+        .highlight-box {
+            background: rgba(99,102,241,0.05);
+            border-color: rgba(99,102,241,0.2);
+        }
+        #bunk-result { font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1; }
+        
+        .bunk-input-wrapper { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .bunk-btn {
+            width: 28px; height: 28px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-weight: bold; cursor: pointer; transition: 0.1s;
+        }
+        .bunk-btn:active { transform: scale(0.9); background: var(--border); }
+        .bunk-stepper {
+            width: 50px; background: transparent; border: none; color: var(--text);
+            font-family: 'Space Mono', monospace; font-size: 1.75rem; font-weight: 700; text-align: center; outline: none; padding: 0;
+            -moz-appearance: textfield; 
+        }
+        .bunk-stepper::-webkit-outer-spin-button, .bunk-stepper::-webkit-inner-spin-button {
+            -webkit-appearance: none; margin: 0;
+        }
 
-        /* ─── TABLES ─────────────────────────────────── */
         .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow-x: auto; margin-bottom: 1.5rem; }
         .clean-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 100%; }
         .clean-table th { padding: 0.8rem; color: var(--muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid var(--border); background: var(--surface2); }
@@ -279,6 +329,97 @@
         .hidden { display: none !important; }
         .text-center { text-align: center; }
         .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); border: 1px dashed var(--border2); border-radius: 16px; font-size: 0.95rem; }
+
+        /* ─── NEW UI MORPHING EFFECT (FLAWLESS SKELETON) ─── */
+        .ui-morphing {
+            pointer-events: none;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ui-morphing .section-title,
+        .ui-morphing .roll-input,
+        .ui-morphing .go-btn,
+        .ui-morphing .friend-avatar,
+        .ui-morphing .friend-name,
+        .ui-morphing .friend-roll,
+        .ui-morphing .delete-btn,
+        .ui-morphing .control-panel,
+        .ui-morphing .bunk-stat-box,
+        .ui-morphing .default-indicator,
+        .ui-morphing #display-name,
+        .ui-morphing #display-branch,
+        .ui-morphing .gradient-text,
+        .ui-morphing .status-pill,
+        .ui-morphing .clean-table th,
+        .ui-morphing .clean-table td,
+        .ui-morphing .icon-btn,
+        .ui-morphing #bunk-msg,
+        .ui-morphing .predictor-badge,
+        .ui-morphing .target-label,
+        .ui-morphing #target-display,
+        .ui-morphing .empty-state,
+        button.ui-morphing {
+            color: transparent !important;
+            background: var(--border) !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            -webkit-text-fill-color: transparent !important;
+            border-radius: 8px; 
+        }
+        
+        button.ui-morphing { border-radius: 99px !important; }
+
+        .ui-morphing .empty-state div,
+        .ui-morphing .empty-state p,
+        .ui-morphing .live-tip {
+            opacity: 0 !important;
+        }
+
+        .ui-morphing .roll-input::placeholder { color: transparent !important; }
+        
+        .ui-morphing input[type=range]::-webkit-slider-thumb {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .ui-morphing input[type=range]::-webkit-slider-runnable-track {
+            background: var(--border) !important;
+        }
+        .ui-morphing svg, button.ui-morphing svg { opacity: 0 !important; }
+
+        .ui-morphing::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            transform: skewX(-20deg);
+            animation: shimmer-sweep 1.2s infinite;
+            z-index: 10;
+        }
+
+        [data-theme="dark"] .ui-morphing::after {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        }
+
+        @keyframes shimmer-sweep {
+            100% { left: 200%; }
+        }
+
+        /* ─── TOGGLE SWITCH ─── */
+        .toggle-switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { 
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+            background-color: var(--border2); transition: .3s; border-radius: 26px; 
+        }
+        .toggle-slider:before { 
+            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; 
+            background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch input:checked + .toggle-slider { background-color: var(--green); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body>
@@ -288,7 +429,7 @@
         <div id="custom-modal">
             <div id="modal-content">
                 <h3 id="modal-title">Title</h3>
-                <p id="modal-msg">Message goes here...</p>
+                <p id="modal-msg">Message</p>
                 <div class="modal-actions">
                     <button id="modal-cancel" onclick="closeModal()" class="btn btn-ghost hidden">Cancel</button>
                     <button id="modal-ok" class="btn btn-primary">Okay</button>
@@ -296,15 +437,46 @@
             </div>
         </div>
 
-        <div id="loading-screen" class="hidden">
-            <div class="loader-ring"></div>
-            <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:0.25rem;">Syncing Data</h2>
-            <p style="color:var(--muted);font-size:0.85rem;">Connecting to ACET database...</p>
+        <div id="dev-modal" class="hidden" onclick="closeDevModal()">
+            <div id="dev-modal-content" onclick="event.stopPropagation()">
+                <div style="width: 64px; height: 64px; background: var(--accent-g); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: 800; margin: 0 auto 1rem; box-shadow: 0 4px 10px rgba(99,102,241,0.3);">AS</div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text); margin-bottom: 0.25rem;">Ambati Lalitha Sagar</h3>
+                <p style="color: var(--accent); font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; margin-bottom: 1.25rem; background: var(--accent-g); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">23MH1A1202</p>
+                
+                <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1rem; margin-bottom: 1.5rem; text-align: left;">
+                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem;"><strong style="color:var(--text); display:block; margin-bottom:2px;">Course:</strong> B.Tech Information Technology</p>
+                    <p style="font-size: 0.85rem; color: var(--muted); line-height: 1.4;"><strong style="color:var(--text); display:block; margin-bottom:2px;">College:</strong> Aditya College of Engineering & Technology</p>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <button onclick="closeDevModal()" class="btn btn-ghost" style="flex: 0.6;">Close</button>
+                    <a href="mailto:alalithasagar355@gmail.com" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; text-decoration: none; flex: 1;">Email Me ✉️</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-modal" style="position:absolute; inset:0; z-index:250; display:flex; align-items:flex-end; background:rgba(0,0,0,0.6); opacity:0; pointer-events:none; transition:opacity 0.2s;" class="hidden" onclick="closeProfileModal()">
+            <div id="profile-modal-content" style="background:var(--surface); width:100%; border-radius:24px 24px 0 0; padding:2rem 1.5rem; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.2);" onclick="event.stopPropagation()">
+                <div style="width:40px; height:5px; background:var(--border2); border-radius:10px; margin:0 auto 1.5rem;"></div>
+                <h3 id="pm-name" style="font-size:1.1rem; font-weight:800; margin-bottom:0.2rem; color:var(--text);">Name</h3>
+                <p id="pm-roll" style="color:var(--accent); font-family:'Space Mono',monospace; font-weight:700; margin-bottom:1.5rem;">Roll</p>
+                
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:16px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span style="display:block; font-weight:700; font-size:0.95rem; color:var(--text);">Live Tracking</span>
+                        <span id="pm-status" style="font-size:0.75rem; color:var(--muted);">Set as default & get push alerts</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pm-toggle" onchange="handleNotifyToggle(this)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
         </div>
 
         <div class="scroll-area" id="main-scroll">
             
-            <div id="home-screen" style="padding-bottom: 2.5rem;">
+            <div id="home-screen" style="padding-bottom: 6rem;">
                 <header class="app-header">
                     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme" id="theme-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="theme-icon">
@@ -317,25 +489,31 @@
                     <p class="header-sub">By Sagar</p>
                 </header>
 
-                <div class="content-lift">
-                    <div class="card">
+                <div class="content-lift home-content-wrap">
+                    <div class="card" id="main-input-card">
                         <span class="section-title">Check Roll Number</span>
                         <div class="input-row">
                             <input type="text" id="rollNoInput" placeholder="23MH1A12xx" class="roll-input" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter') fetchData()">
-                            <button onclick="fetchData()" class="go-btn">GO</button>
+                            <button id="fetchBtn" onclick="fetchData()" class="go-btn">GO</button>
                         </div>
                     </div>
 
-                    <div class="header-row">
+                    <div class="header-row" style="margin-bottom: 0.4rem;">
                         <span class="section-title" style="margin:0;">Saved Profiles</span>
                         <span class="count-badge" id="friend-count">0</span>
                     </div>
+                    
+                    <div class="live-tip" style="font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem; padding: 0 0.25rem; display: flex; align-items: flex-start; gap: 6px; line-height: 1.3;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span><strong>Tip:</strong> Long-press any saved profile below to enable Live Push Notifications!</span>
+                    </div>
+
                     <div id="friends-list"></div>
                 </div>
             </div>
 
             <div id="dashboard-screen" class="hidden" style="padding-bottom: 2.5rem;">
-                <header class="app-header" style="padding-bottom: 4rem;">
+                <header class="app-header" style="padding-bottom: 2rem;">
                     <div class="dash-topbar">
                         <button onclick="showHome()" class="icon-btn" aria-label="Go back">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -350,53 +528,76 @@
                     </div>
                 </header>
 
-                <div class="content-lift">
-                    <div class="card text-center">
-                        <span class="section-title">Overall Percentage</span>
-                        <span id="aggregate-pct">--%</span>
-                        <div style="margin-bottom: 1.5rem;"><span id="pct-badge" class="status-pill">Loading...</span></div>
+                <div class="content-lift dashboard-grid">
+                    
+                    <div class="dash-col-left">
+                        <div class="card text-center hero-card">
+                            <div class="hero-glow"></div>
+                            <span class="section-title">Overall Percentage</span>
+                            <span id="aggregate-pct" class="gradient-text">--%</span>
+                            <div style="margin-bottom: 0.5rem; position: relative; z-index: 2;"><span id="pct-badge" class="status-pill">Loading...</span></div>
 
-                        <div>
-                            <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">
-                                <span>Target Goal</span>
-                                <span id="target-display" style="color:var(--accent); font-family:'Space Mono', monospace;">75%</span>
+                            <div class="control-panel">
+                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.75rem;">
+                                    <span class="target-label">Target Goal</span>
+                                    <span id="target-display" style="color:var(--accent); font-family:'Space Mono', monospace; font-size: 0.85rem; background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px;">75%</span>
+                                </div>
+                                <input type="range" id="target-slider" min="50" max="95" value="75" oninput="recalculateStatus()">
+                                <p id="aggregate-msg" style="font-size:0.85rem; color:var(--muted); margin-top:0.75rem; line-height:1.5;">Analyzing data...</p>
                             </div>
-                            <input type="range" id="target-slider" min="50" max="95" value="75" oninput="recalculateStatus()">
                         </div>
-                        <p id="aggregate-msg" style="font-size:0.85rem; color:var(--muted); margin-top:0.5rem; line-height:1.5;">Analyzing data...</p>
+                        
+                        <div class="card">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="section-title" style="margin:0;">Bunk Meter</span>
+                                <span class="predictor-badge" style="background:rgba(99,102,241,0.15); color:#6366f1; font-size:0.65rem; font-weight:800; padding:3px 8px; border-radius:6px; letter-spacing:1px; text-transform:uppercase;">Predictor</span>
+                            </div>
+                            
+                            <div class="bunk-grid">
+                                <div class="bunk-stat-box">
+                                    <label>Classes to Skip</label>
+                                    <div class="bunk-input-wrapper">
+                                        <button onclick="adjustBunk(-1)" class="bunk-btn">-</button>
+                                        <input type="number" id="bunk-input" placeholder="0" class="bunk-stepper" oninput="calculateBunk()">
+                                        <button onclick="adjustBunk(1)" class="bunk-btn">+</button>
+                                    </div>
+                                </div>
+                                <div class="bunk-stat-box highlight-box">
+                                    <label>Future %</label>
+                                    <div id="bunk-result">--%</div>
+                                </div>
+                            </div>
+                            <p id="bunk-msg" style="font-size:0.8rem; color:var(--muted); text-align:center; margin-top:1rem; font-weight: 500;">Enter a number to predict</p>
+                        </div>
                     </div>
 
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                            <span class="section-title" style="margin:0;">Bunk Meter</span>
-                            <span style="background:rgba(99,102,241,0.15); color:#6366f1; font-size:0.65rem; font-weight:800; padding:3px 8px; border-radius:6px; letter-spacing:1px; text-transform:uppercase;">Predictor</span>
-                        </div>
-                        <div class="bunk-input-row">
-                            <div style="flex:1;">
-                                <label style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.5rem; display:block;">Classes to Skip</label>
-                                <input type="number" id="bunk-input" placeholder="0" class="number-input" oninput="calculateBunk()">
-                            </div>
-                            <div style="flex:1; text-align:center;">
-                                <label style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.5rem; display:block;">Future %</label>
-                                <div id="bunk-result">--%</div>
-                            </div>
-                        </div>
-                        <p id="bunk-msg" style="font-size:0.8rem; color:var(--muted); text-align:center; margin-top:1rem;">Enter a number to predict</p>
+                    <div class="dash-col-right">
+                        <span class="section-title" style="margin-left:0.5rem;">Today's Report</span>
+                        <div class="table-wrap"><div id="daily-container"></div></div>
+
+                        <span class="section-title" style="margin-left:0.5rem;">Yesterday's Report</span>
+                        <div class="table-wrap"><div id="yesterday-container"></div></div>
+
+                        <span class="section-title" style="margin-left:0.5rem;">Semester Overall</span>
+                        <div class="table-wrap"><div id="overall-container"></div></div>
                     </div>
 
-                    <span class="section-title" style="margin-left:0.5rem;">Today's Report</span>
-                    <div class="table-wrap"><div id="daily-container"></div></div>
-
-                    <span class="section-title" style="margin-left:0.5rem;">Yesterday's Report</span>
-                    <div class="table-wrap"><div id="yesterday-container"></div></div>
-
-                    <span class="section-title" style="margin-left:0.5rem;">Semester Overall</span>
-                    <div class="table-wrap"><div id="overall-container"></div></div>
                 </div>
             </div>
             
-        </div> </div> <script>
-        /* ─── THEME TOGGLE LOGIC ─────────────────────── */
+        </div> 
+
+        <div id="dev-floating-btn" style="position: absolute; left: 50%; transform: translateX(-50%); bottom: 1.5rem; z-index: 100; transition: opacity 0.2s;">
+            <button id="dev-btn-element" onclick="showDevModal()" class="btn btn-ghost" style="font-size: 0.75rem; padding: 0.5rem 1rem; border-radius: 99px; color: var(--muted); border: 1px dashed var(--border2); background: var(--surface); box-shadow: 0 4px 15px rgba(0,0,0,0.1); white-space: nowrap;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                About the Developer
+            </button>
+        </div>
+
+    </div> 
+
+    <script>
+        /* ─── MISSING DARK MODE FUNCTIONS ADDED BACK ─── */
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -413,15 +614,24 @@
                 icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
             }
         }
+        
         window.addEventListener('DOMContentLoaded', () => updateThemeIcon(document.documentElement.getAttribute('data-theme')));
 
-
-        /* ─── BACK BUTTON LOGIC ──────────────────────── */
+        /* ─── APP CORE LOGIC ─── */
         window.addEventListener('load', () => {
             if (window.location.hash === '#dashboard') {
                 history.replaceState(null, null, window.location.pathname);
                 document.getElementById('dashboard-screen').classList.add('hidden');
                 document.getElementById('home-screen').classList.remove('hidden');
+                document.getElementById('dev-floating-btn').classList.remove('hidden');
+            }
+
+            lockUI();
+            checkServerStatus();
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .catch(err => console.log('SW Failed:', err));
             }
         });
 
@@ -429,13 +639,22 @@
             if (window.location.hash !== '#dashboard') {
                 document.getElementById('dashboard-screen').classList.add('hidden');
                 document.getElementById('home-screen').classList.remove('hidden');
+                document.getElementById('dev-floating-btn').classList.remove('hidden');
                 renderFriends();
             }
         });
 
         let globalOverallData = [];
 
-        /* ─── BUNK METER ─────────────────────────────── */
+        function adjustBunk(val) {
+            const input = document.getElementById('bunk-input');
+            let current = parseInt(input.value) || 0;
+            let next = current + val;
+            if (next < 0) next = 0;
+            input.value = next === 0 ? "" : next;
+            calculateBunk();
+        }
+
         function calculateBunk() {
             if (globalOverallData.length === 0) return;
             const skips = parseInt(document.getElementById('bunk-input').value) || 0;
@@ -459,7 +678,6 @@
             }
         }
 
-        /* ─── RECALCULATE STATUS ─────────────────────── */
         function recalculateStatus() {
             if (globalOverallData.length === 0) return;
             const targetVal = document.getElementById('target-slider').value;
@@ -498,7 +716,6 @@
             }
         }
 
-        /* ─── MODAL ──────────────────────────────────── */
         function showModal(title, msg, onConfirm = null) {
             const modal = document.getElementById('custom-modal');
             document.getElementById('modal-title').innerText = title;
@@ -531,7 +748,20 @@
             setTimeout(() => modal.classList.add('hidden'), 200);
         }
 
-        /* ─── DATA PARSING & UI BUILDING ─────────────── */
+        /* ─── DEVELOPER MODAL ─── */
+        function showDevModal() {
+            const modal = document.getElementById('dev-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; // Reflow
+            modal.classList.add('visible');
+        }
+
+        function closeDevModal() {
+            const modal = document.getElementById('dev-modal');
+            modal.classList.remove('visible');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
         function extractTableData(html) {
             if (!html) return [];
             const parser = new DOMParser();
@@ -611,12 +841,46 @@
             recalculateStatus();
         }
 
-        /* ─── FETCH & NAVIGATION ─────────────────────── */
+        /* ─── DYNAMIC SKELETON HANDLER ─── */
+        function setDashboardSkeleton(isLoading) {
+            const dash = document.getElementById('dashboard-screen');
+            if (isLoading) {
+                document.getElementById('display-name').innerText = "Loading Student Name";
+                document.getElementById('display-branch').innerText = "FETCHING";
+                document.getElementById('aggregate-pct').innerText = "00%";
+                document.getElementById('pct-badge').innerText = "Wait...";
+                document.getElementById('aggregate-msg').innerText = "Analyzing data...";
+                document.getElementById('bunk-result').innerText = "--%";
+
+                const dummyTable = `<table class="clean-table">
+                    <thead><tr><th>Subject</th><th>Held</th><th>Att.</th><th>%</th></tr></thead>
+                    <tbody>
+                        <tr><td>Loading Data...</td><td>00</td><td>00</td><td>00%</td></tr>
+                        <tr><td>Loading Data...</td><td>00</td><td>00</td><td>00%</td></tr>
+                    </tbody>
+                </table>`;
+                document.getElementById('daily-container').innerHTML = dummyTable;
+                document.getElementById('yesterday-container').innerHTML = dummyTable;
+                document.getElementById('overall-container').innerHTML = dummyTable;
+
+                dash.classList.add('ui-morphing');
+            } else {
+                dash.classList.remove('ui-morphing');
+            }
+        }
+
         async function fetchData() {
             const rollNo = document.getElementById('rollNoInput').value.trim();
             if (!rollNo) return showModal("Input Required", "Please enter a Roll Number first.");
 
-            document.getElementById('loading-screen').classList.remove('hidden');
+            // Immediately switch to dashboard and hide dev button
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('dev-floating-btn').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            document.getElementById('main-scroll').scrollTo(0, 0);
+            window.location.hash = 'dashboard';
+
+            setDashboardSkeleton(true);
 
             try {
                 const res = await fetch('/fetch-attendance', {
@@ -624,7 +888,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ rollNo })
                 });
+                
+                if (!res.ok) throw new Error("Fetch failed");
                 const data = await res.json();
+
+                setDashboardSkeleton(false);
 
                 extractProfile(data.overallHtml);
                 document.getElementById('daily-container').innerHTML = buildTableHTML(extractTableData(data.dailyHtml));
@@ -634,17 +902,10 @@
                 document.getElementById('overall-container').innerHTML = buildTableHTML(overallData);
                 if (overallData.length) updateAggregate(overallData);
 
-                document.getElementById('home-screen').classList.add('hidden');
-                document.getElementById('loading-screen').classList.add('hidden');
-                document.getElementById('dashboard-screen').classList.remove('hidden');
-                
-                // IMPORTANT FIX: Scroll the internal scroll area back to top!
-                document.getElementById('main-scroll').scrollTo(0, 0);
-                window.location.hash = 'dashboard';
-
             } catch (err) {
-                document.getElementById('loading-screen').classList.add('hidden');
-                showModal("Connection Failed", "Could not fetch data. Check your Roll Number or try again.");
+                setDashboardSkeleton(false);
+                showHome();
+                showModal("Connection Failed", "Could not fetch data. Check your Roll Number or try again. The college server might be slow right now.");
             }
         }
 
@@ -654,15 +915,15 @@
             } else {
                 document.getElementById('dashboard-screen').classList.add('hidden');
                 document.getElementById('home-screen').classList.remove('hidden');
+                document.getElementById('dev-floating-btn').classList.remove('hidden');
                 renderFriends();
             }
         }
 
-        /* ─── PROFILES MANAGEMENT ────────────────────── */
         function saveCurrentProfile() {
             const name = document.getElementById('display-name').innerText;
             const rollNo = document.getElementById('rollNoInput').value.trim().toUpperCase();
-            if (name === "Student Name") return showModal("Action Required", "Please fetch data before saving.");
+            if (name === "Loading Student Name" || name === "Student Name") return showModal("Action Required", "Please let the data finish loading before saving.");
             
             const friends = JSON.parse(localStorage.getItem('ecap_friends') || '[]');
             if (friends.some(f => f.rollNo === rollNo))
@@ -693,6 +954,207 @@
             return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
         }
 
+        const rollInput = document.getElementById('rollNoInput');
+        const goButton = document.getElementById('fetchBtn');
+
+        function lockUI() {
+            document.getElementById('main-input-card').classList.add('ui-morphing');
+            document.getElementById('friends-list').classList.add('ui-morphing');
+            document.getElementById('dev-btn-element').classList.add('ui-morphing');
+        }
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+
+                if (data.ready) {
+                    document.getElementById('main-input-card').classList.remove('ui-morphing');
+                    document.getElementById('friends-list').classList.remove('ui-morphing');
+                    document.getElementById('dev-btn-element').classList.remove('ui-morphing');
+                } else {
+                    setTimeout(checkServerStatus, 2000);
+                }
+            } catch (error) {
+                setTimeout(checkServerStatus, 2000);
+            }
+        }
+
+        /* ─── MODAL CONTROLS & LONG PRESS ─── */
+        let currentProfileRoll = "";
+        let currentProfileName = "";
+        let pressTimer;
+        let isLongPress = false;
+
+        function startPress(rollNo, name) {
+            isLongPress = false;
+            pressTimer = setTimeout(() => {
+                isLongPress = true;
+                if (navigator.vibrate) navigator.vibrate(50);
+                openProfileModal(rollNo, name);
+            }, 600); 
+        }
+
+        function cancelPress() {
+            clearTimeout(pressTimer);
+        }
+
+        function handleChipClick(e, rollNo) {
+            if (isLongPress) {
+                e.preventDefault();
+                return;
+            }
+            loadFriend(rollNo);
+        }
+
+        function openProfileModal(rollNo, name) {
+            currentProfileRoll = rollNo;
+            currentProfileName = name;
+            
+            document.getElementById('pm-name').innerText = name;
+            document.getElementById('pm-roll').innerText = rollNo;
+            
+            document.getElementById('pm-status').innerText = "Set as default & get push alerts";
+            document.getElementById('pm-status').style.color = "var(--muted)";
+            document.getElementById('pm-toggle').disabled = false;
+            
+            const defaultRoll = localStorage.getItem('ecap_default_roll');
+            document.getElementById('pm-toggle').checked = (defaultRoll === rollNo);
+
+            const modal = document.getElementById('profile-modal');
+            const content = document.getElementById('profile-modal-content');
+            modal.classList.remove('hidden');
+            
+            void modal.offsetWidth;
+            modal.style.opacity = '1';
+            modal.style.pointerEvents = 'all';
+            content.style.transform = 'translateY(0)';
+        }
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            const content = document.getElementById('profile-modal-content');
+            
+            modal.style.opacity = '0';
+            modal.style.pointerEvents = 'none';
+            content.style.transform = 'translateY(100%)';
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        /* ─── PUSH NOTIFICATIONS LOGIC ─── */
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+            return outputArray;
+        }
+
+        async function handleNotifyToggle(checkbox) {
+            const isEnabled = checkbox.checked;
+            const statusText = document.getElementById('pm-status');
+            
+            checkbox.disabled = true;
+            statusText.innerText = "Processing... Please wait.";
+            statusText.style.color = "var(--accent)";
+
+            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                checkbox.checked = false;
+                checkbox.disabled = false;
+                statusText.innerText = "Error: Requires HTTPS";
+                statusText.style.color = "var(--red)";
+                return showModal("Security Blocked", "Push notifications require an HTTPS connection.");
+            }
+
+            try {
+                if (isEnabled) {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        throw new Error("You must click 'Allow' on the browser prompt to use this feature.");
+                    }
+
+                    statusText.innerText = "Waking up background worker...";
+                    
+                    let registration = await navigator.serviceWorker.register('/sw.js');
+                    await registration.update();
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    if (!registration || !registration.pushManager) {
+                        throw new Error("Your browser is blocking the Push Manager.");
+                    }
+
+                    statusText.innerText = "Securing connection...";
+                    const response = await fetch('/api/vapidPublicKey');
+                    if (!response.ok) throw new Error("Could not connect to your backend.");
+                    const vapidPublicKey = await response.text();
+
+                    statusText.innerText = "Registering device...";
+                    let subscription;
+                    try {
+                        subscription = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+                        });
+                    } catch (subErr) {
+                        const existingSub = await registration.pushManager.getSubscription();
+                        if (existingSub) {
+                            await existingSub.unsubscribe(); 
+                            subscription = await registration.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+                            });
+                        } else {
+                            throw new Error("Browser rejected the Push Subscription. Check VAPID keys.");
+                        }
+                    }
+
+                    statusText.innerText = "Saving to database...";
+                    const dbResponse = await fetch('/api/subscribe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            subscription: subscription,
+                            rollNo: currentProfileRoll,
+                            name: currentProfileName,
+                            notificationsEnabled: true
+                        })
+                    });
+
+                    if (!dbResponse.ok) throw new Error("Database failed to save the profile.");
+
+                    localStorage.setItem('ecap_default_roll', currentProfileRoll);
+                    renderFriends(); 
+                    
+                    showModal("Tracking Active!", `We are now actively tracking <strong>${currentProfileRoll}</strong>!`);
+                    closeProfileModal();
+
+                } else {
+                    statusText.innerText = "Removing from database...";
+                    await fetch('/api/subscribe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ rollNo: currentProfileRoll, notificationsEnabled: false })
+                    });
+                    
+                    if (localStorage.getItem('ecap_default_roll') === currentProfileRoll) {
+                        localStorage.removeItem('ecap_default_roll');
+                    }
+                    renderFriends(); 
+                    closeProfileModal();
+                }
+            } catch (error) {
+                console.error("Push Error:", error);
+                checkbox.checked = !isEnabled; 
+                checkbox.disabled = false;
+                statusText.innerText = "Setup Failed!";
+                statusText.style.color = "var(--red)";
+                showModal("Setup Failed", error.message || "An unknown error occurred.");
+            }
+        }
+        
+        /* ─── RENDER UI ─── */
         function renderFriends() {
             const friends = JSON.parse(localStorage.getItem('ecap_friends') || '[]');
             const container = document.getElementById('friends-list');
@@ -707,34 +1169,43 @@
                 return;
             }
 
-            container.innerHTML = friends.map(f => `
-                <div class="friend-chip" onclick="loadFriend('${f.rollNo}')">
-                    <div style="display:flex;align-items:center;min-width:0;">
+            container.innerHTML = friends.map(f => {
+                const safeName = f.name.replace(/'/g, "\\'");
+                return `
+                <div class="friend-chip" 
+                     onclick="handleChipClick(event, '${f.rollNo}')"
+                     oncontextmenu="event.preventDefault(); openProfileModal('${f.rollNo}', '${safeName}'); return false;"
+                     ontouchstart="startPress('${f.rollNo}', '${safeName}')"
+                     ontouchend="cancelPress()"
+                     ontouchmove="cancelPress()"
+                     onmousedown="if(event.button !== 2) startPress('${f.rollNo}', '${safeName}')"
+                     onmouseup="cancelPress()"
+                     onmouseleave="cancelPress()">
+                     
+                    <div style="display:flex;align-items:center;min-width:0;pointer-events:none;">
                         <div class="friend-avatar">${getInitials(f.name)}</div>
                         <div style="min-width:0; padding-right:10px;">
-                            <div class="friend-name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${f.name}</div>
+                            <div class="friend-name" style="white-space: normal; word-wrap: break-word; line-height: 1.3; margin-bottom: 0.2rem;">${f.name}</div>
                             <div class="friend-roll">${f.rollNo}</div>
                         </div>
                     </div>
-                    <button onclick="event.stopPropagation(); confirmDelete('${f.rollNo}', '${f.name}')" class="delete-btn" aria-label="Delete">
+                    
+                    <div class="default-indicator ${localStorage.getItem('ecap_default_roll') === f.rollNo ? '' : 'hidden'}" style="color: #f59e0b; margin-right: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+
+                    <button onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); confirmDelete('${f.rollNo}', '${safeName}')" class="delete-btn" aria-label="Delete">
                         <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
                         </svg>
                     </button>
                 </div>
-            `).join('');
+            `}).join('');
         }
-
+        
+        // Initial render
         renderFriends();
-    </script>
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .catch(err => console.log('SW Failed:', err));
-            });
-        }
     </script>
 </body>
 </html>
