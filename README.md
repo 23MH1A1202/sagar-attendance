@@ -34,5 +34,5 @@ A personal web app to track student attendance from the AEC (Annamacharya Engine
 ## Developer
 
 **Sagar**
-- 🎓 Roll No: 23MH1A1202 — Annamacharya Engineering College
+- 🎓 Roll No: 23MH1A1202 — Aditya College of engineering and technology
 - 🐙 GitHub: [@23MH1A1202](https://github.com/23MH1A1202)
