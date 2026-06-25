@@ -1,6 +1,6 @@
 # Sagar Attendance
 
-A personal web app to track student attendance from the AEC (Annamacharya Engineering College) portal with real-time push notifications.
+A personal web app to track student attendance from the AEC (Aditya college of engineering and technology, Surampalem, Andhra Pradesh) portal with real-time push notifications.
 
 > ⚠️ **This is a personal project. It is not open for contributions or external use.**
 
