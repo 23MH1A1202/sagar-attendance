@@ -4,6 +4,7 @@ A personal web app to track student attendance from the AEC (Aditya college of e
 
 > ⚠️ **This is a personal project. It is not open for contributions or external use.**
 
+> ⚠️ **currently this Application is shutted down(Hibernating) due to Server maintanance costs.**
 ---
 
 ## Technologies Used
